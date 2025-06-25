@@ -5,6 +5,9 @@ extends Node
 @export var rock_scene: PackedScene = preload("res://scenes/rock.tscn")
 
 var screen_size: Vector2
+var level: int = 0
+var score: int = 0
+var playing: bool = false
 
 
 func _ready() -> void:
@@ -36,3 +39,14 @@ func _on_rock_exploded(size, radius, pos, vel):
 		var new_pos = pos + dir * radius
 		var new_vel = dir * vel.length() * 1.1
 		spawn_rock(size - 1, new_pos, new_vel)
+
+
+func start_game() -> void:
+	get_tree().call_group("rocks", "queue_free")
+	level = 0
+	score = 0
+	$HUD.update_score(score)
+	$HUD.show_message("Ger Ready!")
+	$Player.reset()
+	await $HUD/Timer.timeout
+	playing = true
