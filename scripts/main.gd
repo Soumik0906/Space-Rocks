@@ -1,5 +1,6 @@
 extends Node
 
+@onready var player: RigidBody2D = $Player
 
 @export var rock_scene: PackedScene = preload("res://scenes/rock.tscn")
 
@@ -23,6 +24,15 @@ func spawn_rock(size: int, pos=null, vel=null) -> void:
 	call_deferred("add_child", r)
 	#r.call_deferred("start", pos, vel, size)
 	r.start(pos, vel, size)
+	r.exploded.connect(self._on_rock_exploded)
 
-func explode() -> void:
-	pass
+
+func _on_rock_exploded(size, radius, pos, vel):
+	if size <= 1: 
+		return
+	
+	for offset in [-1, 1]:
+		var dir = player.position.direction_to(pos).orthogonal() * offset
+		var new_pos = pos + dir * radius
+		var new_vel = dir * vel.length() * 1.1
+		spawn_rock(size - 1, new_pos, new_vel)

@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://cbu2ioedakvvu"]
+[gd_scene load_steps=6 format=3 uid="uid://cbu2ioedakvvu"]
 
 [ext_resource type="Texture2D" uid="uid://du2tg3ivq4nrv" path="res://assets/rock.png" id="1_1di36"]
 [ext_resource type="Script" uid="uid://c2m2t8y88t731" path="res://scripts/rock.gd" id="1_mek2u"]
+[ext_resource type="PackedScene" uid="uid://dfe1npfai1u70" path="res://scenes/explosion.tscn" id="3_ik6fu"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ik6fu"]
 bounce = 1.0
@@ -19,3 +20,5 @@ shape = SubResource("CircleShape2D_mek2u")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_1di36")
+
+[node name="Explosion" parent="." instance=ExtResource("3_ik6fu")]
