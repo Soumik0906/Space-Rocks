@@ -1,7 +1,7 @@
 extends RigidBody2D
 
-@onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var cshape: CollisionShape2D = $CollisionShape2D
+@onready var sprite_2d: Sprite2D = $Sprite2D
 
 var screen_size: Vector2 = Vector2.ZERO
 var size: int
@@ -10,6 +10,9 @@ var scale_factor: float = 0.2
 
 
 func start(_position, _velocity, _size):
+	if not sprite_2d: sprite_2d = $Sprite2D
+	if not cshape: cshape = $CollisionShape2D
+	
 	position = _position
 	size = _size
 	mass = 1.5 * size
@@ -25,6 +28,6 @@ func start(_position, _velocity, _size):
 
 func _integrate_forces(physics_state: PhysicsDirectBodyState2D) -> void:
 	var xform: Transform2D = physics_state.transform
-	xform.origin.x += wrapf(xform.origin.x, 0 - radius, screen_size.x + radius)
-	xform.origin.y += wrapf(xform.origin.y, 0 - radius, screen_size.y + radius)
+	xform.origin.x = wrapf(xform.origin.x, 0 - radius, screen_size.x + radius)
+	xform.origin.y = wrapf(xform.origin.y, 0 - radius, screen_size.y + radius)
 	physics_state.transform = xform

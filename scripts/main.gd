@@ -21,4 +21,8 @@ func spawn_rock(size: int, pos=null, vel=null) -> void:
 	var r = rock_scene.instantiate()
 	r.screen_size = screen_size
 	call_deferred("add_child", r)
-	r.call_deferred("start", pos, vel, size)
+	#r.call_deferred("start", pos, vel, size)
+	r.start(pos, vel, size)
+
+func explode() -> void:
+	pass
