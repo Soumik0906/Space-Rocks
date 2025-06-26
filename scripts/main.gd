@@ -2,7 +2,8 @@ extends Node
 
 @onready var player: RigidBody2D = $Player
 
-@export var rock_scene: PackedScene = preload("res://scenes/rock.tscn")
+var rock_scene: PackedScene = preload("res://scenes/rock.tscn")
+var enemy_scene: PackedScene = preload("res://scenes/enemy.tscn")
 
 var screen_size: Vector2
 var level: int = 0
@@ -34,6 +35,7 @@ func _input(event: InputEvent) -> void:
 		else:
 			message.text = ""
 			message.hide()
+
 
 func spawn_rock(size: int, pos=null, vel=null) -> void:
 	if pos == null:
@@ -76,8 +78,16 @@ func new_level() -> void:
 	$HUD.show_message("Wave %s" % level)
 	for i in level:
 		spawn_rock(3)
+	$EnemyTimer.start(randf_range(5, 10))
 
 
 func game_over():
 	playing = false
 	$HUD.game_over()
+
+
+func _on_enemy_timer_timeout() -> void:
+	var e = enemy_scene.instantiate()
+	add_child(e)
+	e.target = $Player
+	$EnemyTimer.start(randf_range(20, 40))
