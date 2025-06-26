@@ -1,7 +1,12 @@
 extends RigidBody2D
 
+signal lives_changed
+signal dead
+
 @onready var cshape: CollisionShape2D = $CollisionShape2D
 @onready var gun_cooldown: Timer = $GunCooldown
+@onready var sprite_2d: Sprite2D = $Sprite2D
+@onready var invulnerability_timer: Timer = $InvulnerabilityTimer
 
 @export var engine_power: int = 500
 @export var spin_power: int = 8000
@@ -14,7 +19,17 @@ var thrust: Vector2 = Vector2.ZERO
 var rotation_dir: float = 0.0
 var screen_size: Vector2
 var can_shoot: bool = true
+var reset_pos: bool = false
+var lives: int = 0: 
+	set = set_lives
 
+func set_lives(value: int):
+	lives = value
+	lives_changed.emit(lives)
+	if lives <= 0:
+		change_state(DEAD)
+	else:
+		change_state(INVULNERABLE)
 
 func _ready() -> void:
 	change_state(ALIVE)
@@ -25,12 +40,19 @@ func change_state(new_state) -> void:
 	match new_state:
 		INIT:
 			cshape.set_deferred("disabled", true)
+			sprite_2d.modulate.a = 0.5
 		ALIVE:
 			cshape.set_deferred("disabled", false)
+			sprite_2d.modulate.a = 1.0
 		INVULNERABLE:
 			cshape.set_deferred("disabled", true)
+			sprite_2d.modulate.a = 0.5
+			invulnerability_timer.start()
 		DEAD:
 			cshape.set_deferred("disabled", true)
+			sprite_2d.hide()
+			linear_velocity = Vector2.ZERO
+			dead.emit()
 	state = new_state
 
 
@@ -61,6 +83,9 @@ func _integrate_forces(physics_state: PhysicsDirectBodyState2D) -> void:
 	xform.origin.x = wrapf(xform.origin.x, 0, screen_size.x)
 	xform.origin.y = wrapf(xform.origin.y, 0, screen_size.y)
 	physics_state.transform = xform
+	if reset_pos:
+		physics_state.transform.origin = screen_size / 2
+		reset_pos = false
 
 
 func shoot() -> void:
@@ -75,3 +100,28 @@ func shoot() -> void:
 
 func _on_gun_cooldown_timeout() -> void:
 	can_shoot = true
+
+
+func reset():
+	reset_pos = true
+	$Sprite2D.show()
+	lives = 3
+	change_state(ALIVE)
+
+
+func _on_invulnerability_timer_timeout() -> void:
+	change_state(ALIVE)
+
+
+func _on_body_entered(body: Node) -> void:
+	if body.is_in_group("rocks"):
+		body.explode()
+		lives -= 1
+		explode()
+
+
+func explode() -> void:
+	$Explosion.show()
+	$Explosion/AnimationPlayer.play("explosion")
+	await $Explosion/AnimationPlayer.animation_finished
+	$Explosion.hide()

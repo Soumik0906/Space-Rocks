@@ -12,6 +12,7 @@ _data = {
 point_count = 5
 
 [node name="Main" type="Node"]
+process_mode = 3
 script = ExtResource("1_sugp2")
 
 [node name="Background" type="Sprite2D" parent="."]
@@ -27,3 +28,7 @@ curve = SubResource("Curve2D_jyhfs")
 [node name="RockSpawn" type="PathFollow2D" parent="RockPath"]
 
 [node name="HUD" parent="." instance=ExtResource("4_jyhfs")]
+
+[connection signal="dead" from="Player" to="." method="game_over"]
+[connection signal="lives_changed" from="Player" to="HUD" method="update_lives"]
+[connection signal="start_game" from="HUD" to="." method="new_game"]
